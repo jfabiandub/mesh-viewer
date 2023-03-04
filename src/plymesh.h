@@ -1,5 +1,5 @@
 //--------------------------------------------------
-// Author:
+// Author: Jenfer Fabian
 // Date:
 // Description: Loads PLY files in ASCII format
 //--------------------------------------------------
@@ -49,10 +49,10 @@ namespace agl {
       void init();
 
    protected:
-
       std::vector<GLfloat> _positions;
       std::vector<GLfloat> _normals;
       std::vector<GLuint> _faces;
+
    };
 }
 
