@@ -21,14 +21,20 @@ public:
    }
 
    void setup() {
+     
       model =  GetFilenamesInDir("../models", "ply");
-      mesh.load("../models/" + model[_currModel]);
-      _numModel = model.size();
+      for (string each : model) {
+            PLYMesh eachFile;
+            eachFile.load("../models/" + each);
+            modelList.push_back(eachFile);
+        }
+        mesh = modelList[0];
 
    }
 
    void mouseMotion(int x, int y, int dx, int dy) {
-      if (mouseIsDown(GLFW_MOUSE_BUTTON_LEFT)) {
+      
+      if (mouseIsDown(GLFW_MOUSE_BUTTON_LEFT)) {  //THIS ONE CAUSES SEGMENTATION SOME TIMES
         // Convert pixel movement to rotation angles
         float sensitivity = 0.2f;
         float azimuthDelta = dx * sensitivity;
@@ -42,38 +48,44 @@ public:
         elevation = glm::clamp(elevation, -90, 90);
 
         // Convert spherical coordinates to cartesian coordinates
-        float theta = glm::radians(static_cast<float>(azimuth));
-        float phi = glm::radians(static_cast<float>(elevation));
-        float x = radius * glm::cos(phi) * glm::cos(theta);
-        float y = radius * glm::sin(phi);
-        float z = radius * glm::cos(phi) * glm::sin(theta);
-        eyePos = lookPos + glm::vec3(x, y, z);
+      float x = radius * glm::sin(glm::radians(static_cast<float>(azimuth))) * glm::cos(glm::radians(static_cast<float>(elevation)));
+      float y = radius * glm::sin(glm::radians(static_cast<float>(elevation)));
+      float z = radius * glm::cos(glm::radians(static_cast<float>(azimuth))) * glm::cos(glm::radians(static_cast<float>(elevation)));
+      eyePos = vec3(x, y, z);
 
-        // Update view matrix
-        //renderer.lookAt(eyePos, lookPos, up);
     }
 }
 
 
    void mouseDown(int button, int mods) {
-
-
    }
 
    void mouseUp(int button, int mods) {
    }
 
    void scroll(float dx, float dy) {
-        radius += dy * 0.05f;
+      
+      radius += dy * 0.05f;
 
-      eyePos = vec3(
-         radius * sin(azimuth) * cos(elevation), 
-         radius * sin(elevation), 
-         radius * cos(azimuth) * cos(elevation)
-      );
+      float x = radius * glm::sin(glm::radians(static_cast<float>(azimuth))) * glm::cos(glm::radians(static_cast<float>(elevation)));
+      float y = radius * glm::sin(glm::radians(static_cast<float>(elevation)));
+      float z = radius * glm::cos(glm::radians(static_cast<float>(azimuth))) * glm::cos(glm::radians(static_cast<float>(elevation)));
+      eyePos = vec3(x, y, z);
+      
    }
 
    void keyUp(int key, int mods) {
+      
+       if (key == GLFW_KEY_N || key == GLFW_KEY_RIGHT_BRACKET) {
+         // show next model
+         _currModel = (_currModel + 1) % modelList.size();
+         mesh.load("../models/" + model[_currModel]);
+      } else if (key == GLFW_KEY_P || key == GLFW_KEY_LEFT_BRACKET) {
+         // show previous model
+         _currModel = (_currModel - 1) % modelList.size();
+         mesh.load("../models/" + model[_currModel]);
+      }
+      
    }
 
    void draw() {
@@ -83,7 +95,7 @@ public:
       renderer.rotate(vec3(0,0,0));
       renderer.scale(vec3(1,1,1));
       renderer.translate(vec3(0,0,0));
-      //renderer.mesh(mesh);
+      renderer.mesh(mesh);
       renderer.lookAt(eyePos, lookPos, up);
       renderer.cube(); // for debugging!
    }
@@ -96,7 +108,8 @@ protected:
 
 
    std::vector<std::string> model;
-   int _currModel;
+   std::vector<PLYMesh> modelList;
+   int _currModel=0;
    int _numModel;
 
    float azimuth = 0;

@@ -17,9 +17,6 @@ namespace agl {
    }
 
    PLYMesh::PLYMesh() {
-      _positions.clear();
-      _normals.clear();
-      _faces.clear();
    }
 
    void PLYMesh::init() {
@@ -31,7 +28,7 @@ namespace agl {
    }
 
    bool PLYMesh::load(const std::string& filename) {
-      if (_positions.size() != 0|| _normals.size() != 0 || _faces.size() != 0) {
+      if ( _positions.size() != 0 ) {
          std::cout << "WARNING: Cannot load different files with the same PLY mesh\n";
          return false;
       }
@@ -60,41 +57,33 @@ namespace agl {
         while (_myData.compare("end_header") != 0) {
             _file >> _myData;
         }
-        
+
+         // todo: your code here
         for (int i = 0; i < numVertex; i++) {
-            GLfloat a, b, c, d, e, f;
-            _file >> a;
-            _file >> b;
-            _file >> c;
-            _file >> d;
-            _file >> e;
-            _file >> f;
-            vec3 vtx = vec3{ a, b, c };
-            _positions.push_back(a);
-            _positions.push_back(b);
-            _positions.push_back(c);
-            _normals.push_back(d);
-            _normals.push_back(e);
-            _normals.push_back(f);
+            GLfloat v1, v2, v3, v4, v5, v6;
+            _file >> v1>> v2>> v3>> v4>> v5>>v6;
+            vec3 vtx = vec3{ v1, v2, v3 };
+            _positions.push_back(v1);
+            _positions.push_back(v2);
+            _positions.push_back(v3);
+            _normals.push_back(v4);
+            _normals.push_back(v5);
+            _normals.push_back(v6);
             _file >> _myData;
             _file >> _myData;
         }
         for (int i = 0; i < numFace; i++) {
             _file >> _myData;
-            GLuint a, b, c;
-            _file >> a;
-            _file >> b;
-            _file >> c;
-            _faces.push_back(a);
-            printf("a: : %d\n", a);
-            _faces.push_back(b);
-            _faces.push_back(c);
-        }
-        return false;
+            GLuint f1, f2, f3;
+            _file >> f1 >> f2>> f3;
+            _faces.push_back(f1);
+            _faces.push_back(f2);
+            _faces.push_back(f3);
+        }  
+        return true;
    }
-
    glm::vec3 PLYMesh::minBounds() const {
-     glm::vec3 minBound(_positions[0], _positions[1], _positions[2]);
+   glm::vec3 minBound(_positions[0], _positions[1], _positions[2]);
      
      for (int i = 3; i < _positions.size(); i += 3) {
          glm::vec3 vertex(_positions[i], _positions[i+1], _positions[i+2]);
