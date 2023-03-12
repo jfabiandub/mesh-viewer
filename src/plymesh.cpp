@@ -140,4 +140,10 @@ namespace agl {
    const std::vector<GLuint>& PLYMesh::indices() const {
       return _faces;
    }
+
+   void PLYMesh::clear(){
+      _positions.clear();
+      _normals.clear();
+      _faces.clear();
+   }
 }

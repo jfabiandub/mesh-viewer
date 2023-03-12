@@ -28,7 +28,9 @@ public:
             eachFile.load("../models/" + each);
             modelList.push_back(eachFile);
         }
-        mesh = modelList[0];
+         mesh = modelList[0];
+        _numModel = modelList.size();
+         _currModel = 0;
 
    }
 
@@ -78,17 +80,18 @@ public:
       
        if (key == GLFW_KEY_N || key == GLFW_KEY_RIGHT_BRACKET) {
          // show next model
-         _currModel = (_currModel + 1) % modelList.size();
-         mesh.load("../models/" + model[_currModel]);
+         _currModel = (_currModel + 1) % _numModel;
+         mesh = modelList[_currModel];
       } else if (key == GLFW_KEY_P || key == GLFW_KEY_LEFT_BRACKET) {
          // show previous model
-         _currModel = (_currModel - 1) % modelList.size();
-         mesh.load("../models/" + model[_currModel]);
+         _currModel = (_currModel - 1 + _numModel) % _numModel;
+         mesh = modelList[_currModel];
       }
       
    }
 
    void draw() {
+      /*
       float aspect = ((float)width()) / height();
       renderer.perspective(glm::radians(60.0f), aspect, 0.1f, 50.0f);
 
@@ -99,6 +102,28 @@ public:
       renderer.lookAt(eyePos, lookPos, up);
       renderer.cube(); // for debugging!
    }
+   */
+
+   float aspect = ((float)width()) / height();
+   mesh=modelList[_currModel];
+   std::cout<<model[_currModel]<<std::endl;
+   renderer.perspective(glm::radians(60.0f), aspect, 0.01f, 100.0f);
+   renderer.lookAt(eyePos,lookPos,up);
+   
+   // Center the loaded model at (0,0,0)
+   vec3 modelCenter = (mesh.minBounds() + mesh.maxBounds()) / 2.0f;
+   renderer.translate(-modelCenter);   
+   // Resize the model so it fits within a 10x10x10 view volume
+   vec3 scale = vec3(10.0f) / (mesh.maxBounds() - mesh.minBounds());
+   float scaleFactor = glm::min(glm::min(scale.x, scale.y), scale.z);
+   renderer.scale(vec3(scaleFactor));
+
+   renderer.rotate(vec3(0, 0, 0));
+   renderer.mesh(mesh);
+
+   renderer.cube(); // for debugging!
+   }
+   
 
 protected:
    PLYMesh mesh;
