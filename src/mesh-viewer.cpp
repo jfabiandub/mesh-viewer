@@ -36,7 +36,7 @@ public:
 
    void mouseMotion(int x, int y, int dx, int dy) {
       
-      if (mouseIsDown(GLFW_MOUSE_BUTTON_LEFT)) {  //THIS ONE CAUSES SEGMENTATION SOME TIMES
+      if (checker) {  //THIS ONE CAUSES SEGMENTATION SOME TIMES
         // Convert pixel movement to rotation angles
         float sensitivity = 0.2f;
         float azimuthDelta = dx * sensitivity;
@@ -60,9 +60,11 @@ public:
 
 
    void mouseDown(int button, int mods) {
+      checker = true;
    }
 
    void mouseUp(int button, int mods) {
+      checker = false;
    }
 
    void scroll(float dx, float dy) {
@@ -91,41 +93,39 @@ public:
    }
 
    void draw() {
-      /*
-      float aspect = ((float)width()) / height();
-      renderer.perspective(glm::radians(60.0f), aspect, 0.1f, 50.0f);
-
-      renderer.rotate(vec3(0,0,0));
-      renderer.scale(vec3(1,1,1));
-      renderer.translate(vec3(0,0,0));
-      renderer.mesh(mesh);
-      renderer.lookAt(eyePos, lookPos, up);
-      renderer.cube(); // for debugging!
-   }
-   */
-
    float aspect = ((float)width()) / height();
-   mesh=modelList[_currModel];
    std::cout<<model[_currModel]<<std::endl;
-   renderer.perspective(glm::radians(60.0f), aspect, 0.01f, 100.0f);
-   renderer.lookAt(eyePos,lookPos,up);
-   
-   // Center the loaded model at (0,0,0)
-   vec3 modelCenter = (mesh.minBounds() + mesh.maxBounds()) / 2.0f;
-   renderer.translate(-modelCenter);   
-   // Resize the model so it fits within a 10x10x10 view volume
-   vec3 scale = vec3(10.0f) / (mesh.maxBounds() - mesh.minBounds());
-   float scaleFactor = glm::min(glm::min(scale.x, scale.y), scale.z);
-   renderer.scale(vec3(scaleFactor));
+   renderer.perspective(glm::radians(60.0f), aspect, 0.1f, 50.0f);
+   renderer.lookAt(eyePos, lookPos, up);
 
+   // Compute mesh bounds
+   vec3 maxBounds = mesh.maxBounds();
+   vec3 minBounds = mesh.minBounds();
+   vec3 center = (maxBounds + minBounds) * 0.5f;
+   vec3 size = maxBounds - minBounds;
+   float maxDim = std::max(std::max(size.x, size.y), size.z);
+   float scale = 6.0f / maxDim;
+
+   // Apply transformations
+   renderer.translate(-center);
+   renderer.scale(vec3(scale));
    renderer.rotate(vec3(0, 0, 0));
-   renderer.mesh(mesh);
+   renderer.translate(vec3(x, y, z));
 
-   renderer.cube(); // for debugging!
+   // Render the mesh
+   renderer.mesh(mesh);
+  // renderer.cube();
+   
+ 
    }
    
 
 protected:
+
+float _scale = 1.0f;
+   float x=0.0f;
+   float y=0.0f;
+   float z=0.0f;
    PLYMesh mesh;
    vec3 eyePos = vec3(10, 0, 0);
    vec3 lookPos = vec3(0, 0, 0);
@@ -140,6 +140,8 @@ protected:
    float azimuth = 0;
    int elevation = 0;
    float radius = 10;
+
+   bool checker = false;
 
 
 

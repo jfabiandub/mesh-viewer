@@ -6,6 +6,7 @@
 
 #include "plymesh.h"
 #include "fstream"
+#include <sstream>
 
 using namespace std;
 using namespace glm;
@@ -28,64 +29,86 @@ namespace agl {
    }
 
    bool PLYMesh::load(const std::string& filename) {
-      if ( _positions.size() != 0 ) {
-         std::cout << "WARNING: Cannot load different files with the same PLY mesh\n";
-         return false;
-      }
-      // todo: your code here
-         ifstream _file;
-         _file.open(filename);
-         if (!_file.is_open()) {
-            return false;
-        }
-        string _myData;
-        _file >> _myData;
-        if (_myData.compare("ply") != 0) {
-            return false;
-        }
-        while (_myData.compare("vertex") != 0) {
-            _file >> _myData;
-        }
-        _file >> _myData;
-        int numVertex = stoi(_myData);
-        while (_myData.compare("face") != 0) {
-            _file >> _myData;
-        }
-        _file >> _myData;
-         int numFace = stoi(_myData);
-        printf("numface: %d\n", numFace);
-        while (_myData.compare("end_header") != 0) {
-            _file >> _myData;
-        }
+     
+        
+  if (_positions.size() != 0) {
+        std::cout << "WARNING: Cannot load different files with the same PLY mesh\n";
+        return false;
+    }
 
-         // todo: your code here
-        for (int i = 0; i < numVertex; i++) {
-            GLfloat v1, v2, v3, v4, v5, v6;
-            _file >> v1>> v2>> v3>> v4>> v5>>v6;
-            vec3 vtx = vec3{ v1, v2, v3 };
-            _positions.push_back(v1);
-            _positions.push_back(v2);
-            _positions.push_back(v3);
-            _normals.push_back(v4);
-            _normals.push_back(v5);
-            _normals.push_back(v6);
-            _file >> _myData;
-            _file >> _myData;
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    std::string line;
+    // Check for PLY format
+    if (!std::getline(file, line) || line != "ply") {
+        return false;
+    }
+
+    // Skip over header
+    int numVertices = 0;
+    int numFaces = 0;
+    while (std::getline(file, line) && line != "end_header") {
+        std::istringstream iss(line);
+        std::string keyword;
+        iss >> keyword;
+
+        if (keyword == "element") {
+            std::string elementType;
+            int count;
+            iss >> elementType >> count;
+
+            if (elementType == "vertex") {
+                numVertices = count;
+            } else if (elementType == "face") {
+                numFaces = count;
+            }
         }
-        for (int i = 0; i < numFace; i++) {
-            _file >> _myData;
-            GLuint f1, f2, f3;
-            _file >> f1 >> f2>> f3;
-            _faces.push_back(f1);
-            _faces.push_back(f2);
-            _faces.push_back(f3);
-        }  
-        return true;
-   }
+    }
+
+    // Read vertices
+    for (int i = 0; i < numVertices; i++) {
+        std::getline(file, line);
+        std::istringstream iss(line);
+        float x, y, z, nx, ny, nz;
+        iss >> x >> y >> z >> nx >> ny >> nz;
+        _positions.push_back(x);
+        _positions.push_back(y);
+        _positions.push_back(z);
+        _normals.push_back(nx);
+        _normals.push_back(ny);
+        _normals.push_back(nz);
+    }
+
+    // Read faces
+    for (int i = 0; i < numFaces; i++) {
+        int count, v1, v2, v3;
+        file >> count >> v1 >> v2 >> v3;
+        _faces.push_back(v1 );
+        _faces.push_back(v2 );
+        _faces.push_back(v3 );
+        for (int j = 0; j < count - 3; j++) {
+            int vi;
+            file >> vi;
+            _faces.push_back(v1 -1);   //this is to handle cases wher face got more than 3 vertices i hope?
+            _faces.push_back(vi -1);
+            _faces.push_back(vi -1);
+        }
+    }
+
+    if (numVertices == 0 || numFaces == 0) {
+        return false;
+    }
+
+    return true;
+}
+
    glm::vec3 PLYMesh::minBounds() const {
    glm::vec3 minBound(_positions[0], _positions[1], _positions[2]);
      
-     for (int i = 3; i < _positions.size(); i += 3) {
+     for (int i = 0; i < _positions.size(); i += 3) {
          glm::vec3 vertex(_positions[i], _positions[i+1], _positions[i+2]);
          if (vertex.x < minBound.x) {
             minBound.x = vertex.x;
@@ -105,7 +128,7 @@ namespace agl {
      
      glm::vec3 maxBound(_positions[0], _positions[1], _positions[2]);
 
-      for (int i = 3; i < _positions.size(); i += 3) {
+      for (int i = 0; i < _positions.size(); i += 3) {
          glm::vec3 vertex(_positions[i], _positions[i+1], _positions[i+2]);
          if (vertex.x > maxBound.x) {
             maxBound.x = vertex.x;
