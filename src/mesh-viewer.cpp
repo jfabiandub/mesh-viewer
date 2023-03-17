@@ -21,8 +21,14 @@ public:
    }
 
    void setup() {
-     
+
+  // for (string sha : shaders)
+   renderer.loadShader("normals", "../shaders/normals.vs", "../shaders/normals.fs");
+   renderer.loadShader("phong-vertex", "../shaders/phong-vertex.vs", "../shaders/phong-vertex.fs");
+    renderer.loadShader("phong-pixel", "../shaders/phong-pixel.vs", "../shaders/phong-pixel.fs");
+    // etc
       model =  GetFilenamesInDir("../models", "ply");
+
       for (string each : model) {
             PLYMesh eachFile;
             eachFile.load("../models/" + each);
@@ -36,7 +42,7 @@ public:
 
    void mouseMotion(int x, int y, int dx, int dy) {
       
-      if (checker) {  //THIS ONE CAUSES SEGMENTATION SOME TIMES
+      if (checker) { 
         // Convert pixel movement to rotation angles
         float sensitivity = 0.2f;
         float azimuthDelta = dx * sensitivity;
@@ -84,15 +90,26 @@ public:
          // show next model
          _currModel = (_currModel + 1) % _numModel;
          mesh = modelList[_currModel];
-      } else if (key == GLFW_KEY_P || key == GLFW_KEY_LEFT_BRACKET) {
+      }
+      if (key == GLFW_KEY_P || key == GLFW_KEY_LEFT_BRACKET) {
          // show previous model
          _currModel = (_currModel - 1 + _numModel) % _numModel;
          mesh = modelList[_currModel];
       }
+      if(key == GLFW_KEY_S){
+         _currShader = (_currShader +1)% shaders.size();
+          
+      }
+
+
       
    }
+   
 
    void draw() {
+   
+   renderer.beginShader(shaders[_currShader]);
+
    float aspect = ((float)width()) / height();
    std::cout<<model[_currModel]<<std::endl;
    renderer.perspective(glm::radians(60.0f), aspect, 0.1f, 50.0f);
@@ -114,18 +131,18 @@ public:
 
    // Render the mesh
    renderer.mesh(mesh);
-  // renderer.cube();
-   
- 
+   // renderer.cube();
+   renderer.endShader();
    }
+
    
 
 protected:
-
 float _scale = 1.0f;
    float x=0.0f;
    float y=0.0f;
    float z=0.0f;
+
    PLYMesh mesh;
    vec3 eyePos = vec3(10, 0, 0);
    vec3 lookPos = vec3(0, 0, 0);
@@ -143,7 +160,8 @@ float _scale = 1.0f;
 
    bool checker = false;
 
-
+   int _currShader = 0;
+   std::vector<string> shaders = {"normals", "phong-vertex", "phong-pixel"};
 
 };
 
