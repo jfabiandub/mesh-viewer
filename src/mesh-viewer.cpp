@@ -107,8 +107,23 @@ public:
    
 
    void draw() {
+
+
    
    renderer.beginShader(shaders[_currShader]);
+
+      renderer.setUniform("Light.pos", eyePos);
+      renderer.setUniform("Light.La", vec3(0.90f));
+      renderer.setUniform("Light.Ld", vec3(0.90f));
+      renderer.setUniform("Light.Ls", vec3(0.90f));
+
+      
+      renderer.setUniform("Material.Ka", vec3(0.1f, 0.1f, 0.1f));
+      renderer.setUniform("Material.Kd", vec3(0.6f, 0.6f, 0.9f));
+      renderer.setUniform("Material.Ks", vec3(0.9f, 0.9f, 0.9f));
+      renderer.setUniform("Material.shine", 50.0f);
+ 
+      
 
    float aspect = ((float)width()) / height();
    std::cout<<model[_currModel]<<std::endl;
@@ -128,6 +143,12 @@ public:
    renderer.scale(vec3(scale));
    renderer.rotate(vec3(0, 0, 0));
    renderer.translate(vec3(x, y, z));
+
+
+
+
+
+
 
    // Render the mesh
    renderer.mesh(mesh);

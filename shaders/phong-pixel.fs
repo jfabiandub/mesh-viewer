@@ -23,12 +23,8 @@ struct MaterialInfo {
 uniform MaterialInfo Material;
 
 vec3 phong(){
-   vec3 s;
    vec3 eye_n = normalize(eye_normal);
-    if (Light.pos.w == 0.0f) // directional light source
-      s= normalize(vec3(Light.pos));
-   else // positional light source
-      s= normalize(vec3(Light.pos - eye_pos));
+    vec3 s = normalize(vec3(Light.pos - eye_pos));
     vec3 v = normalize(vec3(-eye_pos));
     vec3 r = reflect( -s, eye_n );
 
