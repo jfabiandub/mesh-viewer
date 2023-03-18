@@ -107,8 +107,6 @@ public:
    
 
    void draw() {
-
-
    
    renderer.beginShader(shaders[_currShader]);
 
