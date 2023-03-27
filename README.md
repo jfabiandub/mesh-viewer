@@ -4,8 +4,8 @@ Implements a simple PLY viewer
 
 TODO: Add a representative image for your project here
 
+https://user-images.githubusercontent.com/102636198/227820331-1104936f-f76c-4492-9d5f-3fb9505373fa.mov
 
-https://user-images.githubusercontent.com/102636198/227816929-1eaf7341-2959-4fd9-b507-87bab2c31d15.mov
 
 
 
@@ -85,7 +85,6 @@ https://user-images.githubusercontent.com/102636198/227819803-0b47aa52-b944-4256
 
 glitch shading 
 
-
-https://user-images.githubusercontent.com/102636198/227820331-1104936f-f76c-4492-9d5f-3fb9505373fa.mov
+https://user-images.githubusercontent.com/102636198/227816929-1eaf7341-2959-4fd9-b507-87bab2c31d15.mov
 
 
