@@ -1,3 +1,4 @@
+
 #version 400
 
 layout (location = 0) in vec3 vPos;
@@ -6,11 +7,14 @@ layout (location = 2) in vec2 vTextureCoords;
 
 uniform mat3 NormalMatrix;
 uniform mat4 ModelViewMatrix;
+uniform mat4 ProjectionMatrix;
 uniform mat4 MVP;
 
-uniform bool HasUV;
 
-out vec3 res;
+out vec3 FrontColor;
+out vec3 BackColor;
+out vec2 TextCoord;
+
 struct LightInfo {
 vec4 pos; // Light position in eye coords.
 vec3 La;    // Ambient light 
@@ -50,10 +54,13 @@ vec3 phong(vec4 eye_pos, vec3 eye_n){
 }
 void main()
 {
+    TextCoord = vTextureCoords;
+    vec3 eye_n = normalize(NormalMatrix * vNormals);
+    vec4 eye_pos = ModelViewMatrix * vec4(vPos, 1.0);
 
-   vec3 eye_n = normalize(NormalMatrix * vNormals);
-   vec4 eye_pos = ModelViewMatrix * vec4(vPos, 1.0);
+    FrontColor = phong( eye_pos, eye_n );
+    BackColor = phong( eye_pos, -eye_n );
    
-   res = phong(eye_pos, eye_n);
+
    gl_Position = MVP * vec4(vPos, 1.0);
 }
